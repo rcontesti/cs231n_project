@@ -61,7 +61,7 @@ def csv_to_list(csv_file):
         your_list = list(reader)
     return your_list
 
-if __name__==__main__:
+if __name__=="__main__":
     #Paths
     path_to_data='../project_data/'
     path_to_data_images_train=path_to_data+'Mamm_Images_Train'
