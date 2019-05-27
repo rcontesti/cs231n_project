@@ -8,21 +8,28 @@ from numpy import genfromtxt
 import tensorflow as tf
 import csv
 
+#import tensorflow.compat.v1 as tf
+#tf.disable_v2_behavior()
 
 def _int64_feature(value):
-    return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
+	#if type(value)=='list':
+	value=int(value[0][0])
+	return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
 def _bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 def load_image(addr):
+    #Images are 299,299 n channels. No resizing
+    
     # read an image and resize to (224, 224)
     # cv2 load images as BGR, convert it to RGB
     img = cv2.imread(addr)
     if img is None:
         return None
-    img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_CUBIC)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    
+    #img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_CUBIC)
+    #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
 
 def createDataRecord(out_filename, addrs, labels):
@@ -37,6 +44,9 @@ def createDataRecord(out_filename, addrs, labels):
         img = load_image(addrs[i])
 
         label = labels[i]
+        if not i % 1000:
+            print("img.shape",img.shape)
+            sys.stdout.flush()
 
         if img is None:
             continue
@@ -56,7 +66,7 @@ def createDataRecord(out_filename, addrs, labels):
     sys.stdout.flush()
 
 def csv_to_list(csv_file):
-    with open(csv_file, 'rb') as f:
+    with open(csv_file, 'r') as f:
         reader = csv.reader(f)
         your_list = list(reader)
     return your_list
@@ -73,9 +83,9 @@ if __name__=="__main__":
     images_eval_path=path_to_data_images_eval+'/*.jpg'
     images_test_path=path_to_data_images_test+'/*.jpg'
 
-    addrs_train = glob.glob(cimages_train_path)
-    addrs_eval = glob.glob(cimages_eval_path)
-    addrs_test = glob.glob(cimages_test_path)
+    addrs_train = glob.glob(images_train_path)
+    addrs_eval = glob.glob(images_eval_path)
+    addrs_test = glob.glob(images_test_path)
 
     labels_train=csv_to_list(path_to_data+'train_complex_labels.csv')
     labels_eval =csv_to_list(path_to_data+'train_complex_labels.csv')
@@ -84,9 +94,9 @@ if __name__=="__main__":
     c = list(zip(addrs_train, labels_train))
     shuffle(c)
     addrs, labels = zip(*c)
-    createDataRecord(path_to_data+'train.tfrecords', train_addrs, train_labels)
+    createDataRecord(path_to_data+'train.tfrecords', addrs, labels)
 
     c = list(zip(addrs_eval, labels_eval))
     shuffle(c)
     addrs, labels = zip(*c)
-    createDataRecord(path_to_data+'eval.tfrecords', eval_addrs, eval_labels)
+    createDataRecord(path_to_data+'eval.tfrecords', addrs,labels)
