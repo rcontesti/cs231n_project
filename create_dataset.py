@@ -7,7 +7,9 @@ from numpy import genfromtxt
 #import skimage.io as io
 import tensorflow as tf
 import csv
+import os
 
+#If using tensorflow 2.0
 #import tensorflow.compat.v1 as tf
 #tf.disable_v2_behavior()
 
@@ -20,16 +22,16 @@ def _bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 def load_image(addr):
-    #Images are 299,299 n channels. No resizing
+    """
+    Loads a grey scale image
+        In this case a (299,299)
+    """
     
-    # read an image and resize to (224, 224)
-    # cv2 load images as BGR, convert it to RGB
-    img = cv2.imread(addr)
+    img = cv2.imread(addr, cv2.IMREAD_GRAYSCALE)
+    
     if img is None:
         return None
     
-    #img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_CUBIC)
-    #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
 
 def createDataRecord(out_filename, addrs, labels):
@@ -38,7 +40,7 @@ def createDataRecord(out_filename, addrs, labels):
     for i in range(len(addrs)):
         # print how many images are saved every 1000 images
         if not i % 1000:
-            print('Train data: {}/{}'.format(i, len(addrs)))
+            print(out_filename +' data: {}/{}'.format(i, len(addrs)))
             sys.stdout.flush()
         # Load the image
         img = load_image(addrs[i])
@@ -72,12 +74,18 @@ def csv_to_list(csv_file):
     return your_list
 
 if __name__=="__main__":
+    
+    
     #Paths
     path_to_data='../project_data/'
     path_to_data_images_train=path_to_data+'Mamm_Images_Train'
     path_to_data_images_eval=path_to_data+'Mamm_Images_Eval'
     path_to_data_images_test=path_to_data+'Mamm_Images_Test'
     path_to_models='../models/'
+    
+    #Remove Older Files
+    os.system("rm "+ path_to_data+'train.tfrecords')
+    os.system("rm "+ path_to_data+'train.tfrecords')
 
     images_train_path=path_to_data_images_train+'/*.jpg'
     images_eval_path=path_to_data_images_eval+'/*.jpg'
