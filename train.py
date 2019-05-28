@@ -90,6 +90,13 @@ while (count < 2):
     
     result = model.evaluate(input_fn=eval_input_fn)
     
+    
+    predictor = model.predict(input_fn=eval_input_fn)
+    
+    #https://stackoverflow.com/questions/45912684/in-tensorflow-how-can-i-read-my-predictions-from-a-generator?rq=1
+    predictions_dict = next(predictor)
+    print("predictions",predictions_dict)
+    
     print(result)
     print("Classification accuracy: {0:.2%}".format(result["accuracy"]))
     sys.stdout.flush()
